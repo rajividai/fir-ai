@@ -1,0 +1,22 @@
+{
+  "model": "fir-full-detail-hindi-bankebazar-mohanpur",
+  "engine": "CPython",
+  "python": "3.11",
+  "layers": 6,
+  "hidden_size": 256,
+  "bhasha": "Hindi - Devanagari",
+  "font": "Noto Sans Devanagari / Mangal - Hindi Font",
+  "font_size": 12,
+  "margin_cm": 2.54,
+  "line_spacing": 1.0,
+  "source_pdfs": 8,
+  "total_cases": 10,
+  "source_office_1": "कार्यालय, कनीय विद्युत अभियंता, विद्युत आपूर्ति प्रशाखा, बाँकेबाजार",
+  "source_office_2": "सहायक विद्युत अभियंता, विद्युत आपूर्ति अवर प्रमण्डल, डोभी",
+  "rule_1": "Koi concise nahi - byora_full ko ditto copy karo, ek shabd bhi mat kato",
+  "rule_2": "chhapamari_dal_full ko poora likho - sabka naam + pad",
+  "rule_3": "vichchhedit_dinank, japt, kul_shabdon_me - sab likho",
+  "rule_4": "Mohanpur ka format alag hai - LTIS, 2HP Motor, Hatch Value, Videography CD - alag se rakho",
+  "dhara_default": "135 + अन्य सुसंगत धारायें, भारतीय विद्युत अधिनियम 2003",
+  "compounding_note": "उक्त राशि में भारतीय विद्युत अधिनियम 2003 की धारा 152 की तहत कम्पाउंडिंग की राशि सम्मिलित नहीं है।"
+}

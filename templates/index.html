@@ -1,0 +1,67 @@
+<!DOCTYPE html><html lang="hi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>FIR Generator - Full</title>
+<style>body{font-family:system-ui;background:#f6f8ff;margin:0;padding:12px}h2{color:#1e3a5f;margin:4px 0}h3{background:#1e3a5f;color:#fff;padding:10px;border-radius:8px;margin:22px 0 10px;font-size:15px}label{font-weight:bold;font-size:13px}input,select,textarea{width:100%;padding:11px;margin:5px 0 11px;border:1px solid #ccc;border-radius:8px;font-size:14px;box-sizing:border-box}button{background:#1e3a5f;color:#fff;padding:15px;border:0;border-radius:10px;width:100%;font-size:16px;font-weight:bold}.card{background:#fff;padding:16px;border-radius:12px;box-shadow:0 2px 10px #0001}#kul{background:#e8f0ff;padding:12px;border-radius:8px;font-weight:bold}#msg{font-weight:bold;color:green}#dl{display:none;background:#0a7a2e;color:#fff;padding:14px;text-align:center;border-radius:10px;text-decoration:none;margin-top:10px;font-weight:bold}.note{font-size:12px;color:gray}</style></head>
+<body><div class="card"><h2>FIR Generator - Mobile - Full Form</h2><p class="note">Sab Variable hai. Jo yahan likhoge, wahi FIR me print hoga.</p>
+<h3>1. कार्यालय विवरण - Variable Office</h3>
+<label>7. कार्यालय - कनीय / सहायक विद्युत अभियंता *</label><select id="karyalaya"><option>कनीय विद्युत अभियंता</option><option>सहायक विद्युत अभियंता</option></select>
+<label>8. कार्यालय का प्रकार *</label><select id="shakha_type"><option>विद्युत आपूर्ति प्रशाखा</option><option>विद्युत अवर प्रमंडल</option></select>
+<label>कार्यालय का नाम (जैसे बाँकेबाजार) *</label><input id="shakha_name" value="बाँकेबाजार">
+<label>9. जिला * (लिखें, Dropdown नहीं)</label><input id="zila" value="गया जी" placeholder="जिला लिखें - जैसे गया जी">
+<label>9. थाना * (लिखें, Dropdown नहीं)</label><input id="thana" value="लुधुआ" placeholder="थाना लिखें - जैसे लुधुआ">
+<label>पत्रांक *</label><input id="patrank" value="/बाँकेबाजार">
+<label>दिनांक *</label><input id="dinank" value="17/08/2026">
+<label>Email</label><input id="email" value="jeebankeybazar@gmail.com">
+<label>Mob No</label><input id="mob" value="7632996820">
+<label>सह अभियोजन पदाधिकारी - हस्ताक्षर वाला नाम *</label><input id="hastakshar" value="कनीय विद्युत अभियंता, विद्युत आपूर्ति प्रशाखा, बाँकेबाजार, सह अभियोजन पदाधिकारी">
+<h3>2. चोरी का प्रकार - 4 Types Dropdown *</h3>
+<label>चोरी का प्रकार चुनें *</label><select id="theft_type">
+<option value="1">1. Direct Theft Without Connection - बिना कनेक्शन सीधी चोरी (LT मे टोका)</option>
+<option value="2">2. Meter Bypass - Service Wire काटकर Extra Wire जोड़कर Bypass</option>
+<option value="3">3. Meter Bypass - Service Wire के अलावा अलग तार से Bypass (आटा चक्की)</option>
+<option value="4" selected>4. Theft After Disconnection - बकाया पर विच्छेद के बाद भी चोरी</option>
+</select>
+<p class="note" id="type_hint">Type 4: Vichchhed ke baad bhi chori - Vichchhedit Dinank zaroori hai.</p>
+<h3>3. अभियुक्त विवरण</h3>
+<label>Abhiyukt Naam *</label><input id="abhiyukt" value="कमरुद्दीन मियाँ">
+<label>Pita / Pati</label><select id="pita_type"><option>पिता</option><option>पति</option></select>
+<label>Pita / Pati Naam *</label><input id="pita" value="नजामुद्दीन मियाँ अजमेरी">
+<label>Gaon</label><input id="gaon" value="लुटुआ">
+<label>Panchayat</label><input id="panchayat" value="लुटुआ">
+<label>Upbhokta Sankhya</label><input id="upbhokta" value="229200095413">
+<label>Meter No</label><input id="meter" value="188510">
+<label>Consumer Ka Pura Pata</label><input id="pata" value="ग्राम-लुटुआ, पंचायत-लुटुआ, थाना-लुटुआ, जिला-गया जी (बिहार)">
+<h3>4. छापामारी विवरण</h3>
+<label>Chhapamari Dinank</label><input id="chhapamari_dinank" value="17/08/2026">
+<label>10. Samay *</label><input id="samay" value="12:35 बजे अपराह्न">
+<label>Chhapamari Dal (Poora Naam)</label><textarea id="dal" rows="4">श्री राहुल कुमार वर्मा मानवबल बाँकेबाजार, श्री अमित कुमार, तकनीशियन कोटि 03, बाँकेबाजार, कमरुद्दीन बिलिंग सुपरवाइजर बाँकेबाजार एवं श्री लोकेश कुमार मानवबल बाँकेबाजार, राजीव झा, सहायक विद्युत अभियंता इमामगंज।</textarea>
+<label>Vidyut Bhar</label><input id="bhar" value="0.503 KW">
+<label>11. Shreni *</label><select id="shreni"><option>DS1D</option><option>DS2D</option><option>NDS1D</option><option>NDS2D</option><option>IAS-1</option><option>LTIS-1D</option><option>LTIS2D</option></select>
+<label>Vichchhedit Dinank (Sirf Type 4 ke liye)</label><input id="vichchhedit" value="14/07/2023">
+<label>Jabt Saman (PVC Taar etc.)</label><input id="jabt" value="PVC तार के आंशिक भाग को काट कर जब्त">
+<label>Gawah - Sthaniya Naam evam Pata</label><textarea id="sthaniya" rows="3">सोविन्द, पिता-श्री जगदीश प्रसाद, ग्राम-सिड़की, थाना-नागल, जिला-सहारनपुर (U.P), पिन-कोड-247551, मो० नं- 7632996820</textarea>
+<h3>5. राशि विवरण</h3>
+<label>Nirdharan Rashi *</label><input id="nirdharan" value="52945" type="number">
+<label>Bakaya Rashi *</label><input id="bakaya" value="20575" type="number">
+<div id="kul">Kul: 73520.00</div>
+<label>Compounding Rashi (Dharta 152 - Agar hai to, warna khaali)</label><input id="compounding" value="">
+<label>Antim Anurodh</label><textarea id="antim" rows="2">अतः श्रीमान से आग्रह है कि संबंधित उपरोक्त अभियुक्त पर भारतीय विद्युत अधिनियम 2003 की धारा 135 एवं अन्य सुसंगत धाराओं के अंतर्गत प्राथमिकी दर्ज किया जाए ताकि इस प्रकार की घटना की पुनरावृत्ति न हो सके।</textarea>
+<button onclick="gen()">✓ Naya FIR Generate Karo</button>
+<a id="dl" href="#">⬇️ FIR .docx Download Karo</a>
+<p id="msg"></p>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const hints={"1":"Type 1: Koi connection nahi - LT me Taar se Toka.","2":"Type 2: Meter laga hai, par Service Wire kaat kar Bypass kiya.","3":"Type 3: Aata Chakki / Commercial - Alag taar se Bypass.","4":"Type 4: Vichchhed ke baad bhi chori - Vichchhedit Dinank zaroori hai."};
+$('theft_type').onchange=()=>{$('type_hint').innerText=hints[$('theft_type').value];};
+$('nirdharan').oninput=$('bakaya').oninput=()=>{$('kul').innerText="Kul: "+(Number($('nirdharan').value||0)+Number($('bakaya').value||0))};
+function gen(){
+ let shakha_full = $('shakha_type').value + ", " + $('shakha_name').value;
+ let d={karyalaya:$('karyalaya').value,shakha:shakha_full,zila:$('zila').value,thana:$('thana').value,patrank:$('patrank').value,dinank:$('dinank').value,email:$('email').value,mob:$('mob').value,hastakshar:$('hastakshar').value,theft_type:$('theft_type').value,abhiyukt:$('abhiyukt').value,pita_type:$('pita_type').value,pita:$('pita').value,gaon:$('gaon').value,panchayat:$('panchayat').value,upbhokta:$('upbhokta').value,meter:$('meter').value,pata:$('pata').value,chhapamari_dinank:$('chhapamari_dinank').value,samay:$('samay').value,dal:$('dal').value,bhar:$('bhar').value,shreni:$('shreni').value,vichchhedit:$('vichchhedit').value,jabt:$('jabt').value,sthaniya:$('sthaniya').value,nirdharan:$('nirdharan').value,bakaya:$('bakaya').value,compounding:$('compounding').value,antim:$('antim').value};
+ $('msg').innerText="Bann raha hai...";
+ fetch("/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(d)}).then(r=>r.json()).then(j=>{
+   $('msg').innerText="Ho Gaya! ID "+j.id+" Kul: "+j.kul+" - Type "+d.theft_type;
+   let dl=$('dl'); dl.style.display='block'; dl.innerText='⬇️ FIR '+j.id+' .docx Download Karo';
+   dl.href='/download?id='+j.id;
+   dl.onclick=(e)=>{e.preventDefault(); window.open('/download?id='+j.id,'_blank'); return false;};
+ });
+}
+</script></body></html>
