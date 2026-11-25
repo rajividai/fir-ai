@@ -45,61 +45,7 @@ KRUTI_U2K = {
 "कार्यालय": "dk;Zky;", "श्रीमान": "Jhek", "प्राथमिकी": "izkFkfedh", "विद्युत": "fo|qr",
 "साऊथ": "lkÅFk", "पॉवर": "ikWj", "कंपनी": "daiuh", "लिमिटेड": "fyehsVM",
 "छापामारी": "Nkikekjh", "ब्योरा": "C;ksjk", "प्राथमिकी": "izkFkfedh", "थानाध्यक्ष": "Fkuk/;{k",
-"विश्वासभाजन": "fo'oklHkktu", "अभियोजन": "vfHk;ks**Lo — Poora naya `make_docx_ditto.py` — Ab Table ditto.py ke andar hi hai — Alag JSON banane ki zaroorat nahi — Aur Pehle Library (500 Code) chalegi, nahi mili to andar wala Table chalega.**
-
-**Purana hata ke ye Paste karo — Naam wahi — `make_docx_ditto.py`**
-
----
-
-```python
-# make_docx_ditto.py - FIXED + LOGO + FONT + KRUTI 500 CODE (Library + Inbuilt Table) + COMPANY HEADING TOP
-import json, sys, pathlib
-from docx import Document
-from docx.shared import Pt, Inches, RGBColor
-from docx.enum.text import WD_ALIGN_PARAGRAPH
-from docx.enum.table import WD_TABLE_ALIGNMENT
-from docx.oxml.ns import qn
-from docx.oxml import OxmlElement
-BASE = pathlib.Path(__file__).parent
-DATA_FILE = BASE / "data.json"
-CONFIG_FILE = BASE / "config.json"
-FONT_MAP = {"noto": "Noto Sans", "kruti": "Kruti Dev 010", "nirmala": "Nirmala UI"}
-FONT_NAME = "Noto Sans"
-# ===== KRUTI DEV 010 - 500 CODE - 1. Library, 2. Inbuilt Table =====
-# Source: IIIT Hyderabad krutidev2unicode.py k2u (524 entries) reversed -> Unicode to Kruti
-# Library: pip install krutidev-unicode -> from krutidev_unicode import to_kruti
-try:
-    from krutidev_unicode import to_kruti as _LIB_TO_KRUTI
-except Exception:
-    _LIB_TO_KRUTI = None
-KRUTI_U2K = {
-"॰": "ñ", "र्द्ध": ")Z", "फ़्": "¶+", "क़": "d+", "ख़": "[+k", "ख़्": "[+", "ग़": "x+", "ज़्": "T+", "ज़": "t+", "ड़": "M+", "ढ़": "<+", "फ़": "Q+", "य़": ";+", "ऱ": "j+", "ऩ": "u+",
-"त्त": "Ùk", "त्त्": "Ù", "क्त": "ä", "दृ": "–", "कृ": "—", "न्न": "é", "न्न्": "™",
-"ह्न": "à", "ह्य": "á", "हृ": "â", "ह्म": "ã", "ह्र": "ºz", "ह्": "º",
-"द्द": "í", "क्ष": "{k", "क्ष्": "{", "त्र": "=", "त्र्": "«",
-"छ्य": "Nî", "ट्य": "Vî", "ठ्य": "Bî", "ड्य": "Mî", "ढ्य": "<î", "द्य": "|", "ज्ञ": "K", "द्व": "}",
-"श्र": "J", "ट्र": "Vª", "ड्र": "Mª", "ढ्र": "<ªª", "छ्र": "Nª",
-"क्र": "Ø", "फ्र": "Ý", "र्द्र": "nzZ", "द्र": "æ", "प्र": "ç", "ग्र": "xz",
-"रु": "#", "रू": ":", "ऑ": "v‚", "ओ": "vks", "औ": "vkS", "आ": "vk", "अ": "v",
-"ईं": "b±", "ई": "bZ", "इ": "b", "उ": "m", "ऊ": "Å", "ऐ": ",s", "ए": ",", "ऋ": "_",
-"क्क": "ô", "क": "d", "ख": "[k", "ख्": "[", "ग": "x", "घ": "?k", "घ्": "?", "ङ": "³",
-"चै": "pkS", "च": "p", "छ": "N", "ज": "t", "झ": ">", "झ्": "÷", "ञ": "¥",
-"ट्ट": "ê", "ट्ठ": "ë", "ट": "V", "ठ": "B", "ड्ड": "ì", "ड्ढ": "ï", "ड": "M", "ढ": "<",
-"ण": ".k", "ण्": ".", "त": "r", "थ": "Fk", "थ्": "F", "द्ध": ")", "द": "n",
-"ध": "/k", "ध्": "/", "न": "u", "प": "i", "फ": "Q", "फ्": "¶",
-"ब": "c", "भ": "Hk", "भ्": "H", "म": "e", "य": ";", "र": "j",
-"ल": "y", "ळ": "G", "व": "o", "श": "'k", "श्": "'", "ष": "\"k", "ष्": "\"",
-"स": "l", "ह": "g", "ीं": "È", "्रें": "saz", "्र": "z",
-"ों": "kas", "ो": "ks", "ौ": "kS", "ाँ": "¡k", "ं": "a", "ा": "k",
-"ीं": "ah", "ी": "h", "ुं": "aq", "ु": "q", "ूं": "aw", "ूँ": "¡w", "ू": "w",
-"ृ": "`", "ें": "as", "े": "s", "ैं": "aS", "ै": "S", "्रं": "aª", "्र": "ª",
-"ँ": "¡", "ॅ": "W", "ऽ": "•", "्": "~", "़": "+", "‘": "^", "’": "*",
-"“": "Þ", "”": "ß", "।": "A", ".": "-", ",": "]", "/": "@",
-"०": "å", "१": "ƒ", "२": "„", "३": "…", "४": "†", "५": "‡", "६": "ˆ", "७": "‰", "८": "Š", "९": "‹",
-"कार्यालय": "dk;Zky;", "श्रीमान": "Jhek", "प्राथमिकी": "izkFkfedh", "विद्युत": "fo|qr",
-"साऊथ": "lkÅFk", "पॉवर": "ikWj", "कंपनी": "daiuh", "लिमिटेड": "fyehsVM",
-"छापामारी": "Nkikekjh", "ब्योरा": "C;ksjk", "थानाध्यक्ष": "Fkuk/;{k",
-"विश्वासभाजन": "fo'oklHkktu", "अभियोजन": "vfHk;ksऐसा कुछ नहीं",
+"विश्वासभाजन": "fo'oklHkktu", "अभियोजन": "vfHk;ks", "सह": "lg"
 }
 KRUTI_KEYS_SORTED = sorted(KRUTI_U2K.keys(), key=len, reverse=True)
 def to_kruti(text):
