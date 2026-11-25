@@ -1,4 +1,4 @@
-# make_docx_ditto.py - FIXED + LOGO SELECTOR + FONT SELECTOR
+# make_docx_ditto.py - FIXED + LOGO + FONT + KRUTI V2 + COMPANY HEADING TOP
 import json, sys, pathlib
 from docx import Document
 from docx.shared import Pt, Inches, RGBColor
@@ -11,10 +11,38 @@ DATA_FILE = BASE / "data.json"
 CONFIG_FILE = BASE / "config.json"
 FONT_MAP = {"noto": "Noto Sans", "kruti": "Kruti Dev 010", "nirmala": "Nirmala UI"}
 FONT_NAME = "Noto Sans"
-KRUTI_MAP = {"अ":"v","आ":"vk","इ":"b","ई":"bZ","उ":"m","ऊ":"mZ","ऋ":"`","ए":"vks","ऐ":"vkS","ओ":"vksS","औ":"vkS","क":"d","ख":"[k","ग":"x","घ":"?k","ङ":"u","च":"p","छ":"N","ज":"t","झ":"]","ञ":"U","ट":"V","ठ":"B","ड":"M","ढ":"<","ण":".k","त":"r","थ":"Fk","द":"n","ध":"/k","न":"u","प":"i","फ":"Q","ब":"c","भ":"H","म":"e","य":";","र":"j","ल":"y","व":"o","श":"'k","ष":"\"k","स":"l","ह":"g","क्ष":"{k","त्र":"=","ज्ञ":"K","ा":"k","ि":"f","ी":"h","ु":"q","ू":"w","ृ":"`","े":"s","ै":"S","ो":"ks","ौ":"kS","ं":"a","ः":"%","ँ":"a","्":"~","़":".","।":"|","0":"0","1":"1","2":"2","3":"3","4":"4","5":"5","6":"6","7":"7","8":"8","9":"9"," ":" ","-":"-","/":"/","(":"(",")":")",",":",",".":"."}
+KRUTI_CONS = {
+ "क":"d","ख":"[k","ग":"x","घ":"?k","ङ":"u","च":"p","छ":"N","ज":"t","झ":"]","ञ":"U",
+ "ट":"V","ठ":"B","ड":"M","ढ":"<","ण":".k","त":"r","थ":"Fk","द":"n","ध":"/k","न":"u",
+ "प":"i","फ":"Q","ब":"c","भ":"H","म":"e","य":";","र":"j","ल":"y","व":"o",
+ "श":"'k","ष":"\"k","स":"l","ह":"g","क्ष":"{k","त्र":"=","ज्ञ":"K",
+}
+KRUTI_VOWEL = {"अ":"v","आ":"vk","इ":"b","ई":"bZ","उ":"m","ऊ":"mZ","ऋ":"`","ए":"vks","ऐ":"vkS","ओ":"vksS","औ":"vkS"}
+KRUTI_MATRA = {"ा":"k","ी":"h","ु":"q","ू":"w","ृ":"`","े":"s","ै":"S","ो":"ks","ौ":"kS","ं":"a","ः":"%","ँ":"a","़":".","।":"|"}
 def to_kruti(text):
     if not text: return text
-    return "".join(KRUTI_MAP.get(ch, ch) for ch in str(text))
+    s = str(text)
+    out = ""
+    i = 0
+    while i < len(s):
+        ch = s[i]
+        if ch == "ि":
+            out += "f"; i += 1; continue
+        if ch == "्":
+            out += "~"; i += 1; continue
+        if s[i:i+2] in ["क्ष","त्र","ज्ञ"]:
+            out += KRUTI_CONS[s[i:i+2]]; i += 2; continue
+        if ch in KRUTI_CONS:
+            if i+1 < len(s) and s[i+1] == "ि":
+                out += "f" + KRUTI_CONS[ch]; i += 2; continue
+            out += KRUTI_CONS[ch]; i += 1; continue
+        if ch in KRUTI_VOWEL:
+            out += KRUTI_VOWEL[ch]; i += 1; continue
+        if ch in KRUTI_MATRA:
+            out += KRUTI_MATRA[ch]; i += 1; continue
+        out += ch; i += 1
+    out = out.replace("df", "fd").replace("f[", "[f")
+    return out
 ONES = ["", "एक", "दो", "तीन", "चार", "पाँच", "छह", "सात", "आठ", "नौ", "दस", "ग्यारह", "बारह", "तेरह", "चौदह", "पंद्रह", "सोलह", "सत्रह", "अठारह", "उन्नीस"]
 TENS = ["", "", "बीस", "तीस", "चालीस", "पचास", "साठ", "सत्तर", "अस्सी", "नब्बे"]
 def _two(n):
@@ -134,6 +162,11 @@ def make_docx(fid):
     font_choice = str(get(rec, "font_choice", default="noto")).lower()
     FONT_NAME = FONT_MAP.get(font_choice, "Noto Sans")
     logo_choice = str(get(rec, "logo_choice", default="sbpdcl")).lower()
+    # ===== COMPANY HEADING - Logo ke hisaab se =====
+    if logo_choice == "nbpdcl":
+        company_name = "नॉर्थ बिहार पॉवर डिस्ट्रीब्यूशन कंपनी लिमिटेड"
+    else:
+        company_name = "साऊथ बिहार पॉवर डिस्ट्रीब्यूशन कंपनी लिमिटेड"
     nirdharan = get(rec, "nirdharan", "Nirdharan Rashi", default="52945")
     bakaya = get(rec, "bakaya", "Bakaya Rashi", default="20575")
     try: kul = float(str(nirdharan).replace(",","")) + float(str(bakaya).replace(",",""))
@@ -197,6 +230,8 @@ def make_docx(fid):
         chhapamari_dal = to_kruti(chhapamari_dal)
         sthayi = to_kruti(sthayi); gawah = sthayi
         karyalaya = to_kruti(karyalaya); shakha = to_kruti(shakha)
+        thana = to_kruti(thana); jila = to_kruti(jila); dinank = to_kruti(dinank); patrank = to_kruti(patrank)
+        company_name = to_kruti(company_name)
     doc = Document()
     sec = doc.sections[0]
     sec.page_width = Inches(8.27); sec.page_height = Inches(11.69)
@@ -206,6 +241,8 @@ def make_docx(fid):
     style = doc.styles['Normal']; style.font.name = FONT_NAME; style.font.size = Pt(11)
     style.paragraph_format.space_before = Pt(0); style.paragraph_format.space_after = Pt(1)
     style.paragraph_format.line_spacing = 1.0; style.paragraph_format.widow_control = True
+    # ===== 1st HEADING - COMPANY NAME - BOLD - CENTER - TOP =====
+    para(doc, company_name, size=13, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER, before=0, after=2)
     if logo_choice == "nbpdcl":
         logo_file = BASE / "nbpdcl_logo.png"
     else:
@@ -274,7 +311,7 @@ def make_docx(fid):
     cell_para(right, "सह अभियोजन पदाधिकारी", size=11, align=C, before=0, after=0, line=1.0)
     out = BASE / f"fir_{fid}.docx"
     doc.save(str(out))
-    print(f"OK - {out} - 1 Page - Kul {kul_s} - {abhiyukt} - Logo {logo_choice} - Font {FONT_NAME}")
+    print(f"OK - {out} - 1 Page - Kul {kul_s} - {abhiyukt} - Logo {logo_choice} - Font {FONT_NAME} - Company {company_name}")
     return str(out)
 if __name__ == "__main__":
     if len(sys.argv) > 1: make_docx(sys.argv[1])
