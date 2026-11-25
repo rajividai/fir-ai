@@ -45,23 +45,58 @@
 <label>Compounding Rashi (Dharta 152 - Agar hai to, warna khaali)</label><input id="compounding" value="">
 <label>Antim Anurodh</label><textarea id="antim" rows="2">अतः श्रीमान से आग्रह है कि संबंधित उपरोक्त अभियुक्त पर भारतीय विद्युत अधिनियम 2003 की धारा 135 एवं अन्य सुसंगत धाराओं के अंतर्गत प्राथमिकी दर्ज किया जाए ताकि इस प्रकार की घटना की पुनरावृत्ति न हो सके।</textarea>
 <button onclick="gen()">✓ Naya FIR Generate Karo</button>
+<p class="note" style="text-align:center;margin-top:8px">💾 Catch Memory ON hai — Jo bharoge wo isi phone/browser me save rahega. Dobara khologe to pichhla bhara hua apne aap aa jayega.</p>
+<button onclick="clearSaved()" style="background:#fff;color:#c00;border:1px solid #c00;margin-top:6px">🗑 Pichhla Saved Data Saaf Karo</button>
 <a id="dl" href="#">⬇️ FIR .docx Download Karo</a>
 <p id="msg"></p>
 </div>
 <script>
 const $=id=>document.getElementById(id);
+// ===== CATCH MEMORY - localStorage =====
+const FIELDS=["karyalaya","shakha_type","shakha_name","zila","thana","patrank","dinank","email","mob","hastakshar","theft_type","abhiyukt","pita_type","pita","gaon","panchayat","upbhokta","meter","pata","chhapamari_dinank","samay","dal","bhar","shreni","vichchhedit","jabt","sthaniya","nirdharan","bakaya","compounding","antim"];
+const KEY="fir_ai_catch_memory_v1";
+function saveMemory(){
+  try{
+    let o={};
+    FIELDS.forEach(f=>{let el=$(f); if(el) o[f]=el.value;});
+    o._saved_at=new Date().toISOString();
+    localStorage.setItem(KEY, JSON.stringify(o));
+  }catch(e){}
+}
+function loadMemory(){
+  try{
+    let raw=localStorage.getItem(KEY);
+    if(!raw) return false;
+    let o=JSON.parse(raw);
+    let filled=0;
+    FIELDS.forEach(f=>{let el=$(f); if(el && o[f]!==undefined && o[f]!==""){el.value=o[f]; filled++;}});
+    if($('nirdharan')) $('kul').innerText="Kul: "+(Number($('nirdharan').value||0)+Number($('bakaya').value||0));
+    if($('theft_type')) $('type_hint').innerText=hints[$('theft_type').value]||"";
+    if(filled>0){ $('msg').innerText="💾 Pichhla bhara hua Data aa gaya hai ("+filled+" field) — Sirf naya wala badlo, baaki same rahega."; $('msg').style.color="#1e3a5f"; }
+    return filled>0;
+  }catch(e){ return false; }
+}
+function clearSaved(){
+  try{ localStorage.removeItem(KEY); }catch(e){}
+  $('msg').innerText="🗑 Saved Data saaf kar diya — Ab Form dobara khali khulega.";
+  $('msg').style.color="#c00";
+}
 const hints={"1":"Type 1: Koi connection nahi - LT me Taar se Toka.","2":"Type 2: Meter laga hai, par Service Wire kaat kar Bypass kiya.","3":"Type 3: Aata Chakki / Commercial - Alag taar se Bypass.","4":"Type 4: Vichchhed ke baad bhi chori - Vichchhedit Dinank zaroori hai."};
 $('theft_type').onchange=()=>{$('type_hint').innerText=hints[$('theft_type').value];};
 $('nirdharan').oninput=$('bakaya').oninput=()=>{$('kul').innerText="Kul: "+(Number($('nirdharan').value||0)+Number($('bakaya').value||0))};
+FIELDS.forEach(f=>{let el=$(f); if(el){ el.addEventListener('input', saveMemory); el.addEventListener('change', saveMemory); }});
+window.addEventListener('DOMContentLoaded', loadMemory);
+loadMemory();
 function gen(){
- let shakha_full = $('shakha_type').value + ", " + $('shakha_name').value;
- let d={karyalaya:$('karyalaya').value,shakha:shakha_full,zila:$('zila').value,thana:$('thana').value,patrank:$('patrank').value,dinank:$('dinank').value,email:$('email').value,mob:$('mob').value,hastakshar:$('hastakshar').value,theft_type:$('theft_type').value,abhiyukt:$('abhiyukt').value,pita_type:$('pita_type').value,pita:$('pita').value,gaon:$('gaon').value,panchayat:$('panchayat').value,upbhokta:$('upbhokta').value,meter:$('meter').value,pata:$('pata').value,chhapamari_dinank:$('chhapamari_dinank').value,samay:$('samay').value,dal:$('dal').value,bhar:$('bhar').value,shreni:$('shreni').value,vichchhedit:$('vichchhedit').value,jabt:$('jabt').value,sthaniya:$('sthaniya').value,nirdharan:$('nirdharan').value,bakaya:$('bakaya').value,compounding:$('compounding').value,antim:$('antim').value};
- $('msg').innerText="Bann raha hai...";
- fetch("/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(d)}).then(r=>r.json()).then(j=>{
-   $('msg').innerText="Ho Gaya! ID "+j.id+" Kul: "+j.kul+" - Type "+d.theft_type;
-   let dl=$('dl'); dl.style.display='block'; dl.innerText='⬇️ FIR '+j.id+' .docx Download Karo';
-   dl.href='/download?id='+j.id;
-   dl.onclick=(e)=>{e.preventDefault(); window.open('/download?id='+j.id,'_blank'); return false;};
- });
+    saveMemory();
+    let shakha_full = $('shakha_type').value + ", " + $('shakha_name').value;
+    let d={karyalaya:$('karyalaya').value,shakha:shakha_full,zila:$('zila').value,thana:$('thana').value,patrank:$('patrank').value,dinank:$('dinank').value,email:$('email').value,mob:$('mob').value,hastakshar:$('hastakshar').value,theft_type:$('theft_type').value,abhiyukt:$('abhiyukt').value,pita_type:$('pita_type').value,pita:$('pita').value,gaon:$('gaon').value,panchayat:$('panchayat').value,upbhokta:$('upbhokta').value,meter:$('meter').value,pata:$('pata').value,chhapamari_dinank:$('chhapamari_dinank').value,samay:$('samay').value,dal:$('dal').value,bhar:$('bhar').value,shreni:$('shreni').value,vichchhedit:$('vichchhedit').value,jabt:$('jabt').value,sthaniya:$('sthaniya').value,nirdharan:$('nirdharan').value,bakaya:$('bakaya').value,compounding:$('compounding').value,antim:$('antim').value};
+    $('msg').innerText="Bann raha hai...";
+    fetch("/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(d)}).then(r=>r.json()).then(j=>{
+       $('msg').innerText="Ho Gaya! ID "+j.id+" Kul: "+j.kul+" - Type "+d.theft_type;
+       let dl=$('dl'); dl.style.display='block'; dl.innerText='⬇️ FIR '+j.id+' .docx Download Karo';
+       dl.href='/download?id='+j.id;
+       dl.onclick=(e)=>{e.preventDefault(); window.open('/download?id='+j.id,'_blank'); return false;};
+    });
 }
 </script></body></html>
