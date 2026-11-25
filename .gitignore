@@ -1,0 +1,5 @@
+*.BAK.py
+fixed.py
+__pycache__/
+*.pyc
+fir_*.docx
