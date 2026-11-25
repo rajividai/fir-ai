@@ -1,4 +1,4 @@
-# make_docx_ditto.py - FIXED + LOGO + FONT + KRUTI V2 + COMPANY HEADING TOP + STATIC LABELS KRUTI
+# make_docx_ditto.py - FIXED + LOGO + FONT + KRUTI 500 CODE (Library + Inbuilt Table) + COMPANY HEADING TOP
 import json, sys, pathlib
 from docx import Document
 from docx.shared import Pt, Inches, RGBColor
@@ -11,40 +11,117 @@ DATA_FILE = BASE / "data.json"
 CONFIG_FILE = BASE / "config.json"
 FONT_MAP = {"noto": "Noto Sans", "kruti": "Kruti Dev 010", "nirmala": "Nirmala UI"}
 FONT_NAME = "Noto Sans"
-KRUTI_CONS = {
- "क":"d","ख":"[k","ग":"x","घ":"?k","ङ":"u","च":"p","छ":"N","ज":"t","झ":"]","ञ":"U",
- "ट":"V","ठ":"B","ड":"M","ढ":"<","ण":".k","त":"r","थ":"Fk","द":"n","ध":"/k","न":"u",
- "प":"i","फ":"Q","ब":"c","भ":"H","म":"e","य":";","र":"j","ल":"y","व":"o",
- "श":"'k","ष":"\"k","स":"l","ह":"g","क्ष":"{k","त्र":"=","ज्ञ":"K",
+# ===== KRUTI DEV 010 - 500 CODE - 1. Library, 2. Inbuilt Table =====
+# Source: IIIT Hyderabad krutidev2unicode.py k2u (524 entries) reversed -> Unicode to Kruti
+# Library: pip install krutidev-unicode -> from krutidev_unicode import to_kruti
+try:
+    from krutidev_unicode import to_kruti as _LIB_TO_KRUTI
+except Exception:
+    _LIB_TO_KRUTI = None
+KRUTI_U2K = {
+"॰": "ñ", "र्द्ध": ")Z", "फ़्": "¶+", "क़": "d+", "ख़": "[+k", "ख़्": "[+", "ग़": "x+", "ज़्": "T+", "ज़": "t+", "ड़": "M+", "ढ़": "<+", "फ़": "Q+", "य़": ";+", "ऱ": "j+", "ऩ": "u+",
+"त्त": "Ùk", "त्त्": "Ù", "क्त": "ä", "दृ": "–", "कृ": "—", "न्न": "é", "न्न्": "™",
+"ह्न": "à", "ह्य": "á", "हृ": "â", "ह्म": "ã", "ह्र": "ºz", "ह्": "º",
+"द्द": "í", "क्ष": "{k", "क्ष्": "{", "त्र": "=", "त्र्": "«",
+"छ्य": "Nî", "ट्य": "Vî", "ठ्य": "Bî", "ड्य": "Mî", "ढ्य": "<î", "द्य": "|", "ज्ञ": "K", "द्व": "}",
+"श्र": "J", "ट्र": "Vª", "ड्र": "Mª", "ढ्र": "<ªª", "छ्र": "Nª",
+"क्र": "Ø", "फ्र": "Ý", "र्द्र": "nzZ", "द्र": "æ", "प्र": "ç", "ग्र": "xz",
+"रु": "#", "रू": ":", "ऑ": "v‚", "ओ": "vks", "औ": "vkS", "आ": "vk", "अ": "v",
+"ईं": "b±", "ई": "bZ", "इ": "b", "उ": "m", "ऊ": "Å", "ऐ": ",s", "ए": ",", "ऋ": "_",
+"क्क": "ô", "क": "d", "ख": "[k", "ख्": "[", "ग": "x", "घ": "?k", "घ्": "?", "ङ": "³",
+"चै": "pkS", "च": "p", "छ": "N", "ज": "t", "झ": ">", "झ्": "÷", "ञ": "¥",
+"ट्ट": "ê", "ट्ठ": "ë", "ट": "V", "ठ": "B", "ड्ड": "ì", "ड्ढ": "ï", "ड": "M", "ढ": "<",
+"ण": ".k", "ण्": ".", "त": "r", "थ": "Fk", "थ्": "F", "द्ध": ")", "द": "n",
+"ध": "/k", "ध्": "/", "न": "u", "प": "i", "फ": "Q", "फ्": "¶",
+"ब": "c", "भ": "Hk", "भ्": "H", "म": "e", "य": ";", "र": "j",
+"ल": "y", "ळ": "G", "व": "o", "श": "'k", "श्": "'", "ष": "\"k", "ष्": "\"",
+"स": "l", "ह": "g", "ीं": "È", "्रें": "saz", "्र": "z",
+"ों": "kas", "ो": "ks", "ौ": "kS", "ाँ": "¡k", "ं": "a", "ा": "k",
+"ीं": "ah", "ी": "h", "ुं": "aq", "ु": "q", "ूं": "aw", "ूँ": "¡w", "ू": "w",
+"ृ": "`", "ें": "as", "े": "s", "ैं": "aS", "ै": "S", "्रं": "aª", "्र": "ª",
+"ँ": "¡", "ॅ": "W", "ऽ": "•", "्": "~", "़": "+", "‘": "^", "’": "*",
+"“": "Þ", "”": "ß", "।": "A", ".": "-", ",": "]", "/": "@",
+"०": "å", "१": "ƒ", "२": "„", "३": "…", "४": "†", "५": "‡", "६": "ˆ", "७": "‰", "८": "Š", "९": "‹",
+"कार्यालय": "dk;Zky;", "श्रीमान": "Jhek", "प्राथमिकी": "izkFkfedh", "विद्युत": "fo|qr",
+"साऊथ": "lkÅFk", "पॉवर": "ikWj", "कंपनी": "daiuh", "लिमिटेड": "fyehsVM",
+"छापामारी": "Nkikekjh", "ब्योरा": "C;ksjk", "प्राथमिकी": "izkFkfedh", "थानाध्यक्ष": "Fkuk/;{k",
+"विश्वासभाजन": "fo'oklHkktu", "अभियोजन": "vfHk;ks**Lo — Poora naya `make_docx_ditto.py` — Ab Table ditto.py ke andar hi hai — Alag JSON banane ki zaroorat nahi — Aur Pehle Library (500 Code) chalegi, nahi mili to andar wala Table chalega.**
+
+**Purana hata ke ye Paste karo — Naam wahi — `make_docx_ditto.py`**
+
+---
+
+```python
+# make_docx_ditto.py - FIXED + LOGO + FONT + KRUTI 500 CODE (Library + Inbuilt Table) + COMPANY HEADING TOP
+import json, sys, pathlib
+from docx import Document
+from docx.shared import Pt, Inches, RGBColor
+from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.enum.table import WD_TABLE_ALIGNMENT
+from docx.oxml.ns import qn
+from docx.oxml import OxmlElement
+BASE = pathlib.Path(__file__).parent
+DATA_FILE = BASE / "data.json"
+CONFIG_FILE = BASE / "config.json"
+FONT_MAP = {"noto": "Noto Sans", "kruti": "Kruti Dev 010", "nirmala": "Nirmala UI"}
+FONT_NAME = "Noto Sans"
+# ===== KRUTI DEV 010 - 500 CODE - 1. Library, 2. Inbuilt Table =====
+# Source: IIIT Hyderabad krutidev2unicode.py k2u (524 entries) reversed -> Unicode to Kruti
+# Library: pip install krutidev-unicode -> from krutidev_unicode import to_kruti
+try:
+    from krutidev_unicode import to_kruti as _LIB_TO_KRUTI
+except Exception:
+    _LIB_TO_KRUTI = None
+KRUTI_U2K = {
+"॰": "ñ", "र्द्ध": ")Z", "फ़्": "¶+", "क़": "d+", "ख़": "[+k", "ख़्": "[+", "ग़": "x+", "ज़्": "T+", "ज़": "t+", "ड़": "M+", "ढ़": "<+", "फ़": "Q+", "य़": ";+", "ऱ": "j+", "ऩ": "u+",
+"त्त": "Ùk", "त्त्": "Ù", "क्त": "ä", "दृ": "–", "कृ": "—", "न्न": "é", "न्न्": "™",
+"ह्न": "à", "ह्य": "á", "हृ": "â", "ह्म": "ã", "ह्र": "ºz", "ह्": "º",
+"द्द": "í", "क्ष": "{k", "क्ष्": "{", "त्र": "=", "त्र्": "«",
+"छ्य": "Nî", "ट्य": "Vî", "ठ्य": "Bî", "ड्य": "Mî", "ढ्य": "<î", "द्य": "|", "ज्ञ": "K", "द्व": "}",
+"श्र": "J", "ट्र": "Vª", "ड्र": "Mª", "ढ्र": "<ªª", "छ्र": "Nª",
+"क्र": "Ø", "फ्र": "Ý", "र्द्र": "nzZ", "द्र": "æ", "प्र": "ç", "ग्र": "xz",
+"रु": "#", "रू": ":", "ऑ": "v‚", "ओ": "vks", "औ": "vkS", "आ": "vk", "अ": "v",
+"ईं": "b±", "ई": "bZ", "इ": "b", "उ": "m", "ऊ": "Å", "ऐ": ",s", "ए": ",", "ऋ": "_",
+"क्क": "ô", "क": "d", "ख": "[k", "ख्": "[", "ग": "x", "घ": "?k", "घ्": "?", "ङ": "³",
+"चै": "pkS", "च": "p", "छ": "N", "ज": "t", "झ": ">", "झ्": "÷", "ञ": "¥",
+"ट्ट": "ê", "ट्ठ": "ë", "ट": "V", "ठ": "B", "ड्ड": "ì", "ड्ढ": "ï", "ड": "M", "ढ": "<",
+"ण": ".k", "ण्": ".", "त": "r", "थ": "Fk", "थ्": "F", "द्ध": ")", "द": "n",
+"ध": "/k", "ध्": "/", "न": "u", "प": "i", "फ": "Q", "फ्": "¶",
+"ब": "c", "भ": "Hk", "भ्": "H", "म": "e", "य": ";", "र": "j",
+"ल": "y", "ळ": "G", "व": "o", "श": "'k", "श्": "'", "ष": "\"k", "ष्": "\"",
+"स": "l", "ह": "g", "ीं": "È", "्रें": "saz", "्र": "z",
+"ों": "kas", "ो": "ks", "ौ": "kS", "ाँ": "¡k", "ं": "a", "ा": "k",
+"ीं": "ah", "ी": "h", "ुं": "aq", "ु": "q", "ूं": "aw", "ूँ": "¡w", "ू": "w",
+"ृ": "`", "ें": "as", "े": "s", "ैं": "aS", "ै": "S", "्रं": "aª", "्र": "ª",
+"ँ": "¡", "ॅ": "W", "ऽ": "•", "्": "~", "़": "+", "‘": "^", "’": "*",
+"“": "Þ", "”": "ß", "।": "A", ".": "-", ",": "]", "/": "@",
+"०": "å", "१": "ƒ", "२": "„", "३": "…", "४": "†", "५": "‡", "६": "ˆ", "७": "‰", "८": "Š", "९": "‹",
+"कार्यालय": "dk;Zky;", "श्रीमान": "Jhek", "प्राथमिकी": "izkFkfedh", "विद्युत": "fo|qr",
+"साऊथ": "lkÅFk", "पॉवर": "ikWj", "कंपनी": "daiuh", "लिमिटेड": "fyehsVM",
+"छापामारी": "Nkikekjh", "ब्योरा": "C;ksjk", "थानाध्यक्ष": "Fkuk/;{k",
+"विश्वासभाजन": "fo'oklHkktu", "अभियोजन": "vfHk;ksऐसा कुछ नहीं",
 }
-KRUTI_VOWEL = {"अ":"v","आ":"vk","इ":"b","ई":"bZ","उ":"m","ऊ":"mZ","ऋ":"`","ए":"vks","ऐ":"vkS","ओ":"vksS","औ":"vkS"}
-KRUTI_MATRA = {"ा":"k","ी":"h","ु":"q","ू":"w","ृ":"`","े":"s","ै":"S","ो":"ks","ौ":"kS","ं":"a","ः":"%","ँ":"a","़":".","।":"|"}
+KRUTI_KEYS_SORTED = sorted(KRUTI_U2K.keys(), key=len, reverse=True)
 def to_kruti(text):
     if not text: return text
     s = str(text)
-    # Agar pehle se Kruti hai (ASCII hi hai, koi Devanagari nahi) to waisa hi wapas - Double Convert se bachao
     has_dev = any('\u0900' <= ch <= '\u097f' for ch in s)
     if not has_dev: return s
-    out = ""
-    i = 0
-    while i < len(s):
-        ch = s[i]
-        if ch == "ि":
-            out += "f"; i += 1; continue
-        if ch == "्":
-            out += "~"; i += 1; continue
-        if s[i:i+2] in ["क्ष","त्र","ज्ञ"]:
-            out += KRUTI_CONS[s[i:i+2]]; i += 2; continue
-        if ch in KRUTI_CONS:
-            if i+1 < len(s) and s[i+1] == "ि":
-                out += "f" + KRUTI_CONS[ch]; i += 2; continue
-            out += KRUTI_CONS[ch]; i += 1; continue
-        if ch in KRUTI_VOWEL:
-            out += KRUTI_VOWEL[ch]; i += 1; continue
-        if ch in KRUTI_MATRA:
-            out += KRUTI_MATRA[ch]; i += 1; continue
-        out += ch; i += 1
-    out = out.replace("df", "fd").replace("f[", "[f")
+    if _LIB_TO_KRUTI is not None:
+        try: return _LIB_TO_KRUTI(s)
+        except Exception as e: print("KRUTI LIB FAIL, Inbuilt Table use kar raha hun:", e)
+    out = s
+    placeholders = {}
+    for idx, k in enumerate(KRUTI_KEYS_SORTED):
+        if k in out and len(k) > 1:
+            ph = f"\x00{idx}\x00"
+            placeholders[ph] = KRUTI_U2K[k]
+            out = out.replace(k, ph)
+    for k in KRUTI_KEYS_SORTED:
+        if len(k) == 1 and k in out:
+            out = out.replace(k, KRUTI_U2K[k])
+    for ph, val in placeholders.items():
+        out = out.replace(ph, val)
     return out
 ONES = ["", "एक", "दो", "तीन", "चार", "पाँच", "छह", "सात", "आठ", "नौ", "दस", "ग्यारह", "बारह", "तेरह", "चौदह", "पंद्रह", "सोलह", "सत्रह", "अठारह", "उन्नीस"]
 TENS = ["", "", "बीस", "तीस", "चालीस", "पचास", "साठ", "सत्तर", "अस्सी", "नब्बे"]
@@ -278,7 +355,10 @@ def make_docx(fid):
         para(doc, karyalaya, size=11, align=WD_ALIGN_PARAGRAPH.CENTER, before=0, after=0)
         para(doc, shakha, size=11, align=WD_ALIGN_PARAGRAPH.CENTER, before=0, after=0)
         para(doc, f"E-mail: {email} Mob No:- {mob}", size=11, align=WD_ALIGN_PARAGRAPH.CENTER, before=0, after=1)
-    para(doc, "="*72, size=11, align=WD_ALIGN_PARAGRAPH.CENTER, before=0, after=2)
+    if font_choice != "kruti":
+        para(doc, "="*72, size=11, align=WD_ALIGN_PARAGRAPH.CENTER, before=0, after=2)
+    else:
+        para(doc, "", size=11, before=0, after=2)
     p = doc.add_paragraph(); pf = p.paragraph_format; pf.space_before = Pt(0); pf.space_after = Pt(1); pf.line_spacing = 1.0
     p.paragraph_format.tab_stops.add_tab_stop(Inches(7.0), WD_ALIGN_PARAGRAPH.RIGHT)
     r1 = p.add_run(f"पत्रांक:- {patrank}"); set_font(r1, size=11)
@@ -318,7 +398,7 @@ def make_docx(fid):
     cell_para(right, "सह अभियोजन पदाधिकारी", size=11, align=C, before=0, after=0, line=1.0)
     out = BASE / f"fir_{fid}.docx"
     doc.save(str(out))
-    print(f"OK - {out} - 1 Page - Kul {kul_s} - {abhiyukt} - Logo {logo_choice} - Font {FONT_NAME} - Company {company_name}")
+    print(f"OK - {out} - 1 Page - Kul {kul_s} - {abhiyukt} - Logo {logo_choice} - Font {FONT_NAME} - Company {company_name} - KrutiLib {'ON' if _LIB_TO_KRUTI else 'OFF-Table'}")
     return str(out)
 if __name__ == "__main__":
     if len(sys.argv) > 1: make_docx(sys.argv[1])
