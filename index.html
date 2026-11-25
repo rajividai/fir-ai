@@ -1,6 +1,9 @@
 <!DOCTYPE html><html lang="hi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>FIR Generator - Full</title>
 <style>body{font-family:system-ui;background:#f6f8ff;margin:0;padding:12px}h2{color:#1e3a5f;margin:4px 0}h3{background:#1e3a5f;color:#fff;padding:10px;border-radius:8px;margin:22px 0 10px;font-size:15px}label{font-weight:bold;font-size:13px}input,select,textarea{width:100%;padding:11px;margin:5px 0 11px;border:1px solid #ccc;border-radius:8px;font-size:14px;box-sizing:border-box}button{background:#1e3a5f;color:#fff;padding:15px;border:0;border-radius:10px;width:100%;font-size:16px;font-weight:bold}.card{background:#fff;padding:16px;border-radius:12px;box-shadow:0 2px 10px #0001}#kul{background:#e8f0ff;padding:12px;border-radius:8px;font-weight:bold}#msg{font-weight:bold;color:green}#dl{display:none;background:#0a7a2e;color:#fff;padding:14px;text-align:center;border-radius:10px;text-decoration:none;margin-top:10px;font-weight:bold}.note{font-size:12px;color:gray}</style></head>
 <body><div class="card"><h2>FIR Generator - Mobile - Full Form</h2><p class="note">Sab Variable hai. Jo yahan likhoge, wahi FIR me print hoga.</p>
+<h3>0. Logo aur Font Chuno</h3>
+<label>Logo Chuno *</label><select id="logo_choice"><option value="sbpdcl">SBPDCL - South Bihar</option><option value="nbpdcl">NBPDCL - North Bihar</option></select>
+<label>Font Chuno *</label><select id="font_choice"><option value="noto">Noto Sans - Naya, Saaf (Recommended)</option><option value="kruti">Kruti Dev 010 - Purana Style</option><option value="nirmala">Nirmala UI - Default Windows</option></select>
 <h3>1. कार्यालय विवरण - Variable Office</h3>
 <label>7. कार्यालय - कनीय / सहायक विद्युत अभियंता *</label><select id="karyalaya"><option>कनीय विद्युत अभियंता</option><option>सहायक विद्युत अभियंता</option></select>
 <label>8. कार्यालय का प्रकार *</label><select id="shakha_type"><option>विद्युत आपूर्ति प्रशाखा</option><option>विद्युत अवर प्रमंडल</option></select>
@@ -52,8 +55,7 @@
 </div>
 <script>
 const $=id=>document.getElementById(id);
-// ===== CATCH MEMORY - localStorage =====
-const FIELDS=["karyalaya","shakha_type","shakha_name","zila","thana","patrank","dinank","email","mob","hastakshar","theft_type","abhiyukt","pita_type","pita","gaon","panchayat","upbhokta","meter","pata","chhapamari_dinank","samay","dal","bhar","shreni","vichchhedit","jabt","sthaniya","nirdharan","bakaya","compounding","antim"];
+const FIELDS=["logo_choice","font_choice","karyalaya","shakha_type","shakha_name","zila","thana","patrank","dinank","email","mob","hastakshar","theft_type","abhiyukt","pita_type","pita","gaon","panchayat","upbhokta","meter","pata","chhapamari_dinank","samay","dal","bhar","shreni","vichchhedit","jabt","sthaniya","nirdharan","bakaya","compounding","antim"];
 const KEY="fir_ai_catch_memory_v1";
 function saveMemory(){
   try{
@@ -90,7 +92,7 @@ loadMemory();
 function gen(){
     saveMemory();
     let shakha_full = $('shakha_type').value + ", " + $('shakha_name').value;
-    let d={karyalaya:$('karyalaya').value,shakha:shakha_full,zila:$('zila').value,thana:$('thana').value,patrank:$('patrank').value,dinank:$('dinank').value,email:$('email').value,mob:$('mob').value,hastakshar:$('hastakshar').value,theft_type:$('theft_type').value,abhiyukt:$('abhiyukt').value,pita_type:$('pita_type').value,pita:$('pita').value,gaon:$('gaon').value,panchayat:$('panchayat').value,upbhokta:$('upbhokta').value,meter:$('meter').value,pata:$('pata').value,chhapamari_dinank:$('chhapamari_dinank').value,samay:$('samay').value,dal:$('dal').value,bhar:$('bhar').value,shreni:$('shreni').value,vichchhedit:$('vichchhedit').value,jabt:$('jabt').value,sthaniya:$('sthaniya').value,nirdharan:$('nirdharan').value,bakaya:$('bakaya').value,compounding:$('compounding').value,antim:$('antim').value};
+    let d={logo_choice:$('logo_choice').value,font_choice:$('font_choice').value,karyalaya:$('karyalaya').value,shakha:shakha_full,zila:$('zila').value,thana:$('thana').value,patrank:$('patrank').value,dinank:$('dinank').value,email:$('email').value,mob:$('mob').value,hastakshar:$('hastakshar').value,theft_type:$('theft_type').value,abhiyukt:$('abhiyukt').value,pita_type:$('pita_type').value,pita:$('pita').value,gaon:$('gaon').value,panchayat:$('panchayat').value,upbhokta:$('upbhokta').value,meter:$('meter').value,pata:$('pata').value,chhapamari_dinank:$('chhapamari_dinank').value,samay:$('samay').value,dal:$('dal').value,bhar:$('bhar').value,shreni:$('shreni').value,vichchhedit:$('vichchhedit').value,jabt:$('jabt').value,sthaniya:$('sthaniya').value,nirdharan:$('nirdharan').value,bakaya:$('bakaya').value,compounding:$('compounding').value,antim:$('antim').value};
     $('msg').innerText="Bann raha hai...";
     fetch("/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(d)}).then(r=>r.json()).then(j=>{
        $('msg').innerText="Ho Gaya! ID "+j.id+" Kul: "+j.kul+" - Type "+d.theft_type;

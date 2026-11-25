@@ -37,7 +37,7 @@ class H(BaseHTTPRequestHandler):
             if files:
                 data_bytes = files[0].read_bytes()
                 self.send_response(200)
-                self.send_header("Content-Type","application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+                self.send_header("Content-Type","application/vnd.openxmlformats-officed.wordprocessingml.document")
                 self.send_header("Content-Disposition", f"attachment; filename=fir_{fid}.docx")
                 self.send_header("Content-Length", str(len(data_bytes)))
                 self.end_headers(); self.wfile.write(data_bytes); return
@@ -49,6 +49,8 @@ class H(BaseHTTPRequestHandler):
             self.send_response(404); self.end_headers(); return
         ln = int(self.headers.get("Content-Length",0))
         body = json.loads(self.rfile.read(ln).decode())
+        logo_choice = body.get("logo_choice","sbpdcl")
+        font_choice = body.get("font_choice","noto")
         karyalaya = body.get("karyalaya","कनीय विद्युत अभियंता")
         shakha = body.get("shakha","विद्युत आपूर्ति प्रशाखा, बाँकेबाजार")
         zila = body.get("zila","गया जी")
@@ -95,7 +97,7 @@ class H(BaseHTTPRequestHandler):
         if not hastakshar: hastakshar = f"विश्वासभाजन\n{karyalaya}, {shakha}, सह अभियोजन पदाधिकारी"
         data = json.loads(DATA.read_text(encoding="utf-8")) if DATA.exists() else []
         new_id = (max([d.get("id",0) for d in data], default=0)+1) if data else 1
-        entry = {"id": new_id, "theft_type": theft_type, "karyalaya": f"{karyalaya}\n{shakha}", "shakha": shakha, "zila": zila, "thana": thana, "patrank": patrank, "abhiyukt": abhiyukt, "pita": pita, "pita_type": pita_type, "gaon": gaon, "panchayat": panchayat, "upbhokta": upbhokta, "meter": meter, "pata": pata, "email": email, "mob": mob, "dinank": dinank, "chhapamari_dinank": chhapamari_dinank, "samay": samay, "dal": dal, "bhar": bhar, "shreni": shreni, "vichchhedit": vichchhedit, "jabt": jabt, "nirdharan": n, "bakaya": b, "kul": kul, "compounding": compounding, "chhapamari_dal_full": dal_full, "byora_full": byora, "antim": antim_text, "hastakshar": hastakshar, "sthaniya_naam": sthaniya}
+        entry = {"id": new_id, "logo_choice": logo_choice, "font_choice": font_choice, "theft_type": theft_type, "karyalaya": f"{karyalaya}\n{shakha}", "shakha": shakha, "zila": zila, "thana": thana, "patrank": patrank, "abhiyukt": abhiyukt, "pita": pita, "pita_type": pita_type, "gaon": gaon, "panchayat": panchayat, "upbhokta": upbhokta, "meter": meter, "pata": pata, "email": email, "mob": mob, "dinank": dinank, "chhapamari_dinank": chhapamari_dinank, "samay": samay, "dal": dal, "bhar": bhar, "shreni": shreni, "vichchhedit": vichchhedit, "jabt": jabt, "nirdharan": n, "bakaya": b, "kul": kul, "compounding": compounding, "chhapamari_dal_full": dal_full, "byora_full": byora, "antim": antim_text, "hastakshar": hastakshar, "sthaniya_naam": sthaniya}
         data.append(entry)
         DATA.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
         r = subprocess.run([sys.executable, str(BASE/"make_docx_ditto.py"), str(new_id)], cwd=str(BASE), capture_output=True, text=True)

@@ -1,4 +1,4 @@
-# make_docx_ditto.py - FIXED: app.py ke naye keys padhega, purane keys bhi chalenge
+# make_docx_ditto.py - FIXED + LOGO SELECTOR + FONT SELECTOR
 import json, sys, pathlib
 from docx import Document
 from docx.shared import Pt, Inches, RGBColor
@@ -9,6 +9,12 @@ from docx.oxml import OxmlElement
 BASE = pathlib.Path(__file__).parent
 DATA_FILE = BASE / "data.json"
 CONFIG_FILE = BASE / "config.json"
+FONT_MAP = {"noto": "Noto Sans", "kruti": "Kruti Dev 010", "nirmala": "Nirmala UI"}
+FONT_NAME = "Noto Sans"
+KRUTI_MAP = {"अ":"v","आ":"vk","इ":"b","ई":"bZ","उ":"m","ऊ":"mZ","ऋ":"`","ए":"vks","ऐ":"vkS","ओ":"vksS","औ":"vkS","क":"d","ख":"[k","ग":"x","घ":"?k","ङ":"u","च":"p","छ":"N","ज":"t","झ":"]","ञ":"U","ट":"V","ठ":"B","ड":"M","ढ":"<","ण":".k","त":"r","थ":"Fk","द":"n","ध":"/k","न":"u","प":"i","फ":"Q","ब":"c","भ":"H","म":"e","य":";","र":"j","ल":"y","व":"o","श":"'k","ष":"\"k","स":"l","ह":"g","क्ष":"{k","त्र":"=","ज्ञ":"K","ा":"k","ि":"f","ी":"h","ु":"q","ू":"w","ृ":"`","े":"s","ै":"S","ो":"ks","ौ":"kS","ं":"a","ः":"%","ँ":"a","्":"~","़":".","।":"|","0":"0","1":"1","2":"2","3":"3","4":"4","5":"5","6":"6","7":"7","8":"8","9":"9"," ":" ","-":"-","/":"/","(":"(",")":")",",":",",".":"."}
+def to_kruti(text):
+    if not text: return text
+    return "".join(KRUTI_MAP.get(ch, ch) for ch in str(text))
 ONES = ["", "एक", "दो", "तीन", "चार", "पाँच", "छह", "सात", "आठ", "नौ", "दस", "ग्यारह", "बारह", "तेरह", "चौदह", "पंद्रह", "सोलह", "सत्रह", "अठारह", "उन्नीस"]
 TENS = ["", "", "बीस", "तीस", "चालीस", "पचास", "साठ", "सत्तर", "अस्सी", "नब्बे"]
 def _two(n):
@@ -49,12 +55,12 @@ def get(rec, *keys, default=""):
             return v
     return default
 def set_font(run, size=11, bold=False):
-    run.font.name = "Nirmala UI"; run.font.size = Pt(size); run.bold = bold; run.font.color.rgb = RGBColor(0,0,0)
+    run.font.name = FONT_NAME; run.font.size = Pt(size); run.bold = bold; run.font.color.rgb = RGBColor(0,0,0)
     rPr = run._element.get_or_add_rPr()
     rFonts = rPr.find(qn('w:rFonts'))
     if rFonts is None:
         rFonts = OxmlElement('w:rFonts'); rPr.append(rFonts)
-    for a in ('w:ascii','w:hAnsi','w:cs','w:eastAsia'): rFonts.set(qn(a), 'Nirmala UI')
+    for a in ('w:ascii','w:hAnsi','w:cs','w:eastAsia'): rFonts.set(qn(a), FONT_NAME)
 def para(doc, text="", size=11, bold=False, align=None, before=0, after=1, line=1.0, keep_next=False, right_indent=None):
     p = doc.add_paragraph(); pf = p.paragraph_format
     pf.space_before = Pt(before); pf.space_after = Pt(after); pf.line_spacing = line
@@ -118,13 +124,16 @@ def find_record(fid):
 def default_record():
     return {"id": 17, "patrank": "/बाँकेबाजार", "dinank": "17/08/2026", "email": "jeebankeybazar@gmail.com", "mob": "7632996820", "thana": "लुथुआ", "jila": "गया जी (बिहार)", "abhiyukt": "कमरूद्दीन मियाँ", "pita": "नजामुद्दीन मियाँ", "gaon": "लुथुआ", "panchayat": "लुथुआ", "upbhokta": "229200095413", "meter": "188510", "bhar": "0.503 KW", "shreni": "DS1D", "samay": "12:35 बजे अपराह्न", "dal": "श्री राहुल कुमार वर्मा मानवबल बाँकेबाजार", "vichchhedit": "14/07/2023", "nirdharan": "52945", "bakaya": "20575", "jabt": "PVC तार के आंशिक भाग को काट कर जब्त", "sthaniya_naam": "सोविन्द, पिता-श्री जगदीश प्रसाद, ग्राम-सिड़की, थाना-नागल, जिला-सहारनपुर (U.P), पिन-कोड-247551, मो० नं- 7632996820"}
 def make_docx(fid):
+    global FONT_NAME
     rec = find_record(fid)
     if rec is None:
         print(f"ID {fid} nahi mila - Default 17 se bana raha hun"); rec = default_record(); rec["id"] = fid
     cfg = load_config()
     for k in ["office","shakha","email","mob","thana","jila"]:
         if not rec.get(k) and cfg.get(k): rec[k] = cfg[k]
-    # ===== FIXED MAPPING - naye + purane dono keys =====
+    font_choice = str(get(rec, "font_choice", default="noto")).lower()
+    FONT_NAME = FONT_MAP.get(font_choice, "Noto Sans")
+    logo_choice = str(get(rec, "logo_choice", default="sbpdcl")).lower()
     nirdharan = get(rec, "nirdharan", "Nirdharan Rashi", default="52945")
     bakaya = get(rec, "bakaya", "Bakaya Rashi", default="20575")
     try: kul = float(str(nirdharan).replace(",","")) + float(str(bakaya).replace(",",""))
@@ -157,7 +166,6 @@ def make_docx(fid):
     mob = get(rec, "mob", default="7632996820")
     pata = get(rec, "pata", default=f"ग्राम-{gram}, पंचायत-{panchayat}, थाना-{thana}, जिला-{jila}")
     theft_type = str(get(rec, "theft_type", default="4"))
-    # Karyalaya / Shakha - app.py se "karyalaya\nshakha" aata hai
     karyalaya_raw = get(rec, "karyalaya", "office", default="कनीय विद्युत अभियंता")
     shakha_raw = get(rec, "shakha", default="")
     if "\n" in str(karyalaya_raw):
@@ -167,11 +175,9 @@ def make_docx(fid):
     else:
         karyalaya = str(karyalaya_raw).strip()
     shakha = shakha_raw if shakha_raw else "विद्युत आपूर्ति प्रशाखा, बाँकेबाजार"
-    hastakshar_raw = get(rec, "hastakshar", default="")
     antim_text = get(rec, "antim", default="")
     if not antim_text:
         antim_text = f"अतः श्रीमान से आग्रह है कि संबंधित उपरोक्त अभियुक्त {abhiyukt}, {pita_type}-{pita}, पर भारतीय विद्युत अधिनियम 2003 की धारा 135 एवं अन्य सुसंगत धाराओं के अंतर्गत प्राथमिकी दर्ज किया जाए ताकि इस प्रकार की घटना की पुनरावृत्ति न हो सके।"
-    # Byora - app.py wala byora_full sabse pehle, warna theft_type ke hisaab se banao
     byora_full = get(rec, "byora_full", default="")
     if byora_full:
         body = byora_full
@@ -185,19 +191,49 @@ def make_docx(fid):
         else:
             core = f"{abhiyukt}, {pita_type}-{pita}, (उपभोक्ता संख्या-{upbhokta}), मीटर नं-{meter}, {pata} के परिसर में विद्युत विपत्र बकाया होने के कारण दिनांक {disconnection} को ही विद्युत संबंध विच्छेदित कर दिये जाने के बाद भी इनके द्वारा अवैध रूप से घरेलु परिसर में विद्युत ऊर्जा का उपयोग किया जा रहा था। जाँच के दौरान परिसर का कुल विद्युत भार {load} ({shreni} श्रेणी) में पाया गया।"
         body = f"छापामारी दल समय लगभग {chhapamari_time} में {core} विद्युत ऊर्जा चोरी में प्रयुक्त {japt} को काट कर जब्त कर लिया गया है, जिसे जाँच-सह-जब्ती प्रतिवेदन के साथ थाने में समर्पित की जा रही है। इनके द्वारा इस प्रकार से अवैध रूप से विद्युत ऊर्जा की चोरी करने से साउथ बिहार पॉवर डिस्ट्रीब्यूशन कम्पनी लिमिटेड को कुल राशि-{fmt_amt(nirdharan)}/- रुपया ({nirdharan_words} रुपया) मात्र की राजस्व हानि अनुमानित है, एवं पूर्व में इनके विद्युत विपत्र का बकाया राशि {fmt_amt2(bakaya)} रुपया को मिलाकर कुल {fmt_amt(nirdharan)}+{fmt_amt2(bakaya)}={kul_s} रुपया ({kul_words} रुपया) है। जिसकी वसूली इनसे ही की जानी है। उक्त राशि में भारतीय विद्युत अधिनियम 2003 की धारा 152 की तहत कम्पाउंडिंग की राशि सम्मिलित नहीं है।"
+    if font_choice == "kruti":
+        body = to_kruti(body)
+        antim_text = to_kruti(antim_text)
+        chhapamari_dal = to_kruti(chhapamari_dal)
+        sthayi = to_kruti(sthayi); gawah = sthayi
+        karyalaya = to_kruti(karyalaya); shakha = to_kruti(shakha)
     doc = Document()
     sec = doc.sections[0]
     sec.page_width = Inches(8.27); sec.page_height = Inches(11.69)
     sec.top_margin = Inches(0.45); sec.bottom_margin = Inches(0.35)
     sec.left_margin = Inches(0.70); sec.right_margin = Inches(0.70)
     sec.header_distance = Inches(0.25); sec.footer_distance = Inches(0.25)
-    style = doc.styles['Normal']; style.font.name = 'Nirmala UI'; style.font.size = Pt(11)
+    style = doc.styles['Normal']; style.font.name = FONT_NAME; style.font.size = Pt(11)
     style.paragraph_format.space_before = Pt(0); style.paragraph_format.space_after = Pt(1)
     style.paragraph_format.line_spacing = 1.0; style.paragraph_format.widow_control = True
-    para(doc, "-::कार्यालय::-", size=11, align=WD_ALIGN_PARAGRAPH.CENTER, before=0, after=0)
-    para(doc, karyalaya, size=11, align=WD_ALIGN_PARAGRAPH.CENTER, before=0, after=0)
-    para(doc, shakha, size=11, align=WD_ALIGN_PARAGRAPH.CENTER, before=0, after=0)
-    para(doc, f"E-mail: {email} Mob No:- {mob}", size=11, align=WD_ALIGN_PARAGRAPH.CENTER, before=0, after=1)
+    if logo_choice == "nbpdcl":
+        logo_file = BASE / "nbpdcl_logo.png"
+    else:
+        logo_file = BASE / "sbpdcl_logo.png"
+    if not logo_file.exists():
+        logo_file = BASE / "sbpdcl_logo.png"
+    if logo_file.exists():
+        htable = doc.add_table(rows=1, cols=2)
+        htable.alignment = WD_TABLE_ALIGNMENT.CENTER
+        htable.autofit = False
+        htable.columns[0].width = Inches(1.10)
+        htable.columns[1].width = Inches(5.80)
+        no_borders(htable)
+        lc = htable.cell(0, 0); rc = htable.cell(0, 1)
+        set_cell_margins(lc, top=0, bottom=0, left=0, right=60)
+        set_cell_margins(rc, top=0, bottom=0, left=0, right=0)
+        lp = lc.paragraphs[0]; lp.alignment = WD_ALIGN_PARAGRAPH.LEFT
+        run = lp.add_run()
+        run.add_picture(str(logo_file), width=Inches(0.95))
+        cell_para(rc, "-::कार्यालय::-", size=11, align=WD_ALIGN_PARAGRAPH.CENTER, before=0, after=0)
+        cell_para(rc, karyalaya, size=11, align=WD_ALIGN_PARAGRAPH.CENTER, before=0, after=0)
+        cell_para(rc, shakha, size=11, align=WD_ALIGN_PARAGRAPH.CENTER, before=0, after=0)
+        cell_para(rc, f"E-mail: {email} Mob No:- {mob}", size=11, align=WD_ALIGN_PARAGRAPH.CENTER, before=0, after=0)
+    else:
+        para(doc, "-::कार्यालय::-", size=11, align=WD_ALIGN_PARAGRAPH.CENTER, before=0, after=0)
+        para(doc, karyalaya, size=11, align=WD_ALIGN_PARAGRAPH.CENTER, before=0, after=0)
+        para(doc, shakha, size=11, align=WD_ALIGN_PARAGRAPH.CENTER, before=0, after=0)
+        para(doc, f"E-mail: {email} Mob No:- {mob}", size=11, align=WD_ALIGN_PARAGRAPH.CENTER, before=0, after=1)
     para(doc, "="*72, size=11, align=WD_ALIGN_PARAGRAPH.CENTER, before=0, after=2)
     p = doc.add_paragraph(); pf = p.paragraph_format; pf.space_before = Pt(0); pf.space_after = Pt(1); pf.line_spacing = 1.0
     p.paragraph_format.tab_stops.add_tab_stop(Inches(7.0), WD_ALIGN_PARAGRAPH.RIGHT)
@@ -238,7 +274,7 @@ def make_docx(fid):
     cell_para(right, "सह अभियोजन पदाधिकारी", size=11, align=C, before=0, after=0, line=1.0)
     out = BASE / f"fir_{fid}.docx"
     doc.save(str(out))
-    print(f"OK - {out} - 1 Page - Kul {kul_s} - {abhiyukt}")
+    print(f"OK - {out} - 1 Page - Kul {kul_s} - {abhiyukt} - Logo {logo_choice} - Font {FONT_NAME}")
     return str(out)
 if __name__ == "__main__":
     if len(sys.argv) > 1: make_docx(sys.argv[1])
