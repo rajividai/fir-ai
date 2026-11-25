@@ -1,5 +1,4 @@
-# make_docx_ditto_TABLE2.py - Vishwasbhajan CENTER of Right Box + Right Box Aligned
-# Rename karke use karo: cp make_docx_ditto_TABLE2.py make_docx_ditto.py
+# make_docx_ditto.py - FIXED: app.py ke naye keys padhega, purane keys bhi chalenge
 import json, sys, pathlib
 from docx import Document
 from docx.shared import Pt, Inches, RGBColor
@@ -43,6 +42,12 @@ def fmt_amt(v):
 def fmt_amt2(v):
     try: return f"{float(str(v).replace(',', '').strip() or 0):.2f}"
     except: return str(v or "")
+def get(rec, *keys, default=""):
+    for k in keys:
+        v = rec.get(k)
+        if v is not None and str(v).strip() != "":
+            return v
+    return default
 def set_font(run, size=11, bold=False):
     run.font.name = "Nirmala UI"; run.font.size = Pt(size); run.bold = bold; run.font.color.rgb = RGBColor(0,0,0)
     rPr = run._element.get_or_add_rPr()
@@ -111,7 +116,7 @@ def find_record(fid):
     except: pass
     return None
 def default_record():
-    return {"id": 17, "patrank": "/बाँकेबाजार", "dinank": "17/08/2026", "email": "jeebankeybazar@gmail.com", "mob": "7632996820", "thana": "लुथुआ", "jila": "गया जी (बिहार)", "abhiyukt": "कमरूद्दीन मियाँ", "pita": "नजामुद्दीन मियाँ", "gram": "लुथुआ", "panchayat": "लुथुआ", "upbhokta": "229200095413", "meter": "188510", "load": "0.503", "shreni": "DS1D", "chhapamari_time": "12:35 बजे अपराह्न", "chhapamari_dal": "श्री राहुल कुमार वर्मा मानवबल बाँकेबाजार, श्री अमित कुमार, तकनीशियन कोटि 03, बाँकेबाजार, कमरूद्दीन बिलिंग सुपरवाइजर बाँकेबाजार एवं श्री लोकेश कुमार मानवबल बाँकेबाजार, राजीव झा, सहायक विद्युत अभियंता इमामगंज", "disconnection_date": "14/07/2023", "nirdharan": "52945", "bakaya": "20575", "japt": "PVC तार के आंशिक भाग को काट कर जब्त", "gawah": "सोविन्द, पिता-श्री जगदीश प्रसाद, ग्राम-सिड़की, थाना-नागल, जिला-सहारनपुर (U.P), पिन-कोड-247551, मो० नं- 7632996820", "sthayi": "सोविन्द, पिता-श्री जगदीश प्रसाद, ग्राम-सिड़की, थाना-नागल, जिला-सहारनपुर (U.P), पिन-कोड-247551, मो० नं- 7632996820"}
+    return {"id": 17, "patrank": "/बाँकेबाजार", "dinank": "17/08/2026", "email": "jeebankeybazar@gmail.com", "mob": "7632996820", "thana": "लुथुआ", "jila": "गया जी (बिहार)", "abhiyukt": "कमरूद्दीन मियाँ", "pita": "नजामुद्दीन मियाँ", "gaon": "लुथुआ", "panchayat": "लुथुआ", "upbhokta": "229200095413", "meter": "188510", "bhar": "0.503 KW", "shreni": "DS1D", "samay": "12:35 बजे अपराह्न", "dal": "श्री राहुल कुमार वर्मा मानवबल बाँकेबाजार", "vichchhedit": "14/07/2023", "nirdharan": "52945", "bakaya": "20575", "jabt": "PVC तार के आंशिक भाग को काट कर जब्त", "sthaniya_naam": "सोविन्द, पिता-श्री जगदीश प्रसाद, ग्राम-सिड़की, थाना-नागल, जिला-सहारनपुर (U.P), पिन-कोड-247551, मो० नं- 7632996820"}
 def make_docx(fid):
     rec = find_record(fid)
     if rec is None:
@@ -119,25 +124,67 @@ def make_docx(fid):
     cfg = load_config()
     for k in ["office","shakha","email","mob","thana","jila"]:
         if not rec.get(k) and cfg.get(k): rec[k] = cfg[k]
-    nirdharan = rec.get("nirdharan") or rec.get("Nirdharan Rashi") or "52945"
-    bakaya = rec.get("bakaya") or rec.get("Bakaya Rashi") or "20575"
+    # ===== FIXED MAPPING - naye + purane dono keys =====
+    nirdharan = get(rec, "nirdharan", "Nirdharan Rashi", default="52945")
+    bakaya = get(rec, "bakaya", "Bakaya Rashi", default="20575")
     try: kul = float(str(nirdharan).replace(",","")) + float(str(bakaya).replace(",",""))
     except: kul = 73520.0
     kul_s = f"{kul:.2f}"
     nirdharan_words = num_to_hindi(nirdharan) or "बावन हजार नौ सौ पैंतालीस"
     kul_words = num_to_hindi(kul) or "तिहत्तर हजार पाँच सौ बीस"
-    abhiyukt = rec.get("abhiyukt") or "कमरूद्दीन मियाँ"; pita = rec.get("pita") or "नजामुद्दीन मियाँ"
-    gram = rec.get("gram") or "लुथुआ"; panchayat = rec.get("panchayat") or gram
-    thana = rec.get("thana") or "लुथुआ"; jila = rec.get("jila") or "गया जी (बिहार)"
-    upbhokta = rec.get("upbhokta") or "229200095413"; meter = rec.get("meter") or "188510"
-    load = rec.get("load") or "0.503"; shreni = rec.get("shreni") or "DS1D"
-    dinank = rec.get("dinank") or "17/08/2026"; patrank = rec.get("patrank") or "/बाँकेबाजार"
-    chhapamari_time = rec.get("chhapamari_time") or "12:35 बजे अपराह्न"
-    chhapamari_dal = rec.get("chhapamari_dal") or "श्री राहुल कुमार वर्मा मानवबल बाँकेबाजार, श्री अमित कुमार, तकनीशियन कोटि 03, बाँकेबाजार, कमरूद्दीन बिलिंग सुपरवाइजर बाँकेबाजार एवं श्री लोकेश कुमार मानवबल बाँकेबाजार, राजीव झा, सहायक विद्युत अभियंता इमामगंज"
-    disconnection = rec.get("disconnection_date") or "14/07/2023"
-    japt = rec.get("japt") or "PVC तार के आंशिक भाग को काट कर जब्त"
-    gawah = rec.get("gawah") or rec.get("sthayi") or ""; sthayi = rec.get("sthayi") or gawah
-    email = rec.get("email") or "jeebankeybazar@gmail.com"; mob = rec.get("mob") or "7632996820"
+    abhiyukt = get(rec, "abhiyukt", default="कमरूद्दीन मियाँ")
+    pita = get(rec, "pita", "pati", default="नजामुद्दीन मियाँ")
+    pita_type = get(rec, "pita_type", default="पिता")
+    gram = get(rec, "gaon", "gram", default="लुथुआ")
+    panchayat = get(rec, "panchayat", default=gram)
+    thana = get(rec, "thana", default="लुथुआ")
+    jila = get(rec, "jila", default="गया जी (बिहार)")
+    upbhokta = get(rec, "upbhokta", "consumer", default="229200095413")
+    meter = get(rec, "meter", default="188510")
+    load = get(rec, "bhar", "load", "load_kw", default="0.503 KW")
+    shreni = get(rec, "shreni", default="DS1D")
+    dinank = get(rec, "dinank", default="17/08/2026")
+    patrank = get(rec, "patrank", "patraank", default="/बाँकेबाजार")
+    chhapamari_time = get(rec, "samay", "chhapamari_time", default="12:35 बजे अपराह्न")
+    chhapamari_dal = get(rec, "dal", "chhapamari_dal", "chhapamari_dal_full", default="")
+    if chhapamari_dal.startswith("उपर्युक्त विषय"):
+        chhapamari_dal = get(rec, "dal", "chhapamari_dal", default="")
+    disconnection = get(rec, "vichchhedit", "vichchhedit_dinank", "disconnection_date", default="14/07/2023")
+    japt = get(rec, "jabt", "japt", default="PVC तार के आंशिक भाग को काट कर जब्त")
+    gawah = get(rec, "sthaniya_naam", "sthaniya", "gawah", "sthayi", default="")
+    sthayi = gawah
+    email = get(rec, "email", default="jeebankeybazar@gmail.com")
+    mob = get(rec, "mob", default="7632996820")
+    pata = get(rec, "pata", default=f"ग्राम-{gram}, पंचायत-{panchayat}, थाना-{thana}, जिला-{jila}")
+    theft_type = str(get(rec, "theft_type", default="4"))
+    # Karyalaya / Shakha - app.py se "karyalaya\nshakha" aata hai
+    karyalaya_raw = get(rec, "karyalaya", "office", default="कनीय विद्युत अभियंता")
+    shakha_raw = get(rec, "shakha", default="")
+    if "\n" in str(karyalaya_raw):
+        parts = str(karyalaya_raw).split("\n")
+        karyalaya = parts[0].strip()
+        if not shakha_raw and len(parts) > 1: shakha_raw = parts[1].strip()
+    else:
+        karyalaya = str(karyalaya_raw).strip()
+    shakha = shakha_raw if shakha_raw else "विद्युत आपूर्ति प्रशाखा, बाँकेबाजार"
+    hastakshar_raw = get(rec, "hastakshar", default="")
+    antim_text = get(rec, "antim", default="")
+    if not antim_text:
+        antim_text = f"अतः श्रीमान से आग्रह है कि संबंधित उपरोक्त अभियुक्त {abhiyukt}, {pita_type}-{pita}, पर भारतीय विद्युत अधिनियम 2003 की धारा 135 एवं अन्य सुसंगत धाराओं के अंतर्गत प्राथमिकी दर्ज किया जाए ताकि इस प्रकार की घटना की पुनरावृत्ति न हो सके।"
+    # Byora - app.py wala byora_full sabse pehle, warna theft_type ke hisaab se banao
+    byora_full = get(rec, "byora_full", default="")
+    if byora_full:
+        body = byora_full
+    else:
+        if theft_type == "1":
+            core = f"{abhiyukt}, {pita_type}-{pita}, {pata} के परिसर में बिना किसी वैध विद्युत संबंध के ही मुख्य LT लाइन में लाल एवं काले तार से टोका फँसाकर अवैध रूप से विद्युत ऊर्जा की चोरी की जा रही थी। जाँच के दौरान परिसर का कुल विद्युत भार {load} ({shreni} श्रेणी) में पाया गया।"
+        elif theft_type == "2":
+            core = f"{abhiyukt}, {pita_type}-{pita}, (उपभोक्ता संख्या-{upbhokta}), मीटर नं-{meter}, {pata} के परिसर में मीटर को बायपास करने हेतु सर्विस वायर को काटकर एक्स्ट्रा वायर जोड़कर अवैध रूप से विद्युत ऊर्जा की चोरी की जा रही थी। जाँच के दौरान परिसर का कुल विद्युत भार {load} ({shreni} श्रेणी) में पाया गया।"
+        elif theft_type == "3":
+            core = f"{abhiyukt}, {pita_type}-{pita}, (उपभोक्ता संख्या-{upbhokta}), मीटर नं-{meter}, {pata} के परिसर में सर्विस वायर के अलावा अलग तार से मीटर को बायपास कर (आटा चक्की हेतु) अवैध रूप से विद्युत ऊर्जा की चोरी की जा रही थी। जाँच के दौरान परिसर का कुल विद्युत भार {load} ({shreni} श्रेणी) में पाया गया।"
+        else:
+            core = f"{abhiyukt}, {pita_type}-{pita}, (उपभोक्ता संख्या-{upbhokta}), मीटर नं-{meter}, {pata} के परिसर में विद्युत विपत्र बकाया होने के कारण दिनांक {disconnection} को ही विद्युत संबंध विच्छेदित कर दिये जाने के बाद भी इनके द्वारा अवैध रूप से घरेलु परिसर में विद्युत ऊर्जा का उपयोग किया जा रहा था। जाँच के दौरान परिसर का कुल विद्युत भार {load} ({shreni} श्रेणी) में पाया गया।"
+        body = f"छापामारी दल समय लगभग {chhapamari_time} में {core} विद्युत ऊर्जा चोरी में प्रयुक्त {japt} को काट कर जब्त कर लिया गया है, जिसे जाँच-सह-जब्ती प्रतिवेदन के साथ थाने में समर्पित की जा रही है। इनके द्वारा इस प्रकार से अवैध रूप से विद्युत ऊर्जा की चोरी करने से साउथ बिहार पॉवर डिस्ट्रीब्यूशन कम्पनी लिमिटेड को कुल राशि-{fmt_amt(nirdharan)}/- रुपया ({nirdharan_words} रुपया) मात्र की राजस्व हानि अनुमानित है, एवं पूर्व में इनके विद्युत विपत्र का बकाया राशि {fmt_amt2(bakaya)} रुपया को मिलाकर कुल {fmt_amt(nirdharan)}+{fmt_amt2(bakaya)}={kul_s} रुपया ({kul_words} रुपया) है। जिसकी वसूली इनसे ही की जानी है। उक्त राशि में भारतीय विद्युत अधिनियम 2003 की धारा 152 की तहत कम्पाउंडिंग की राशि सम्मिलित नहीं है।"
     doc = Document()
     sec = doc.sections[0]
     sec.page_width = Inches(8.27); sec.page_height = Inches(11.69)
@@ -148,8 +195,8 @@ def make_docx(fid):
     style.paragraph_format.space_before = Pt(0); style.paragraph_format.space_after = Pt(1)
     style.paragraph_format.line_spacing = 1.0; style.paragraph_format.widow_control = True
     para(doc, "-::कार्यालय::-", size=11, align=WD_ALIGN_PARAGRAPH.CENTER, before=0, after=0)
-    para(doc, "कनीय विद्युत अभियंता", size=11, align=WD_ALIGN_PARAGRAPH.CENTER, before=0, after=0)
-    para(doc, "विद्युत आपूर्ति प्रशाखा, बाँकेबाजार", size=11, align=WD_ALIGN_PARAGRAPH.CENTER, before=0, after=0)
+    para(doc, karyalaya, size=11, align=WD_ALIGN_PARAGRAPH.CENTER, before=0, after=0)
+    para(doc, shakha, size=11, align=WD_ALIGN_PARAGRAPH.CENTER, before=0, after=0)
     para(doc, f"E-mail: {email} Mob No:- {mob}", size=11, align=WD_ALIGN_PARAGRAPH.CENTER, before=0, after=1)
     para(doc, "="*72, size=11, align=WD_ALIGN_PARAGRAPH.CENTER, before=0, after=2)
     p = doc.add_paragraph(); pf = p.paragraph_format; pf.space_before = Pt(0); pf.space_after = Pt(1); pf.line_spacing = 1.0
@@ -163,14 +210,11 @@ def make_docx(fid):
     para(doc, "महाशय,", size=11, before=0, after=2)
     add_mixed(doc, [("उपर्युक्त विषय के संदर्भ में सूचित करना है कि दिनांक-", False), (f"{dinank}", False), (" को विद्युत ऊर्जा चोरी के रोकथाम हेतु एक छापामारी दल का गठन किया गया, जिसमें मेरे अलावा, ", False), (f"{chhapamari_dal}", False), ("। शामिल थे।", False)], before=0, after=2, line=1.0)
     para(doc, "छापामारी का ब्योरा:-", size=11, before=0, after=2)
-    body = (f"छापामारी दल समय लगभग {chhapamari_time} में {abhiyukt}, पिता-{pita} अजमेरी, (उपभोक्ता संख्या-{upbhokta}), " f"मीटर नं-{meter}, ग्राम-{gram}, पंचायत-{panchayat}, थाना-{thana}, जिला-{jila} के परिसर में विद्युत विपत्र बकाया होने के कारण " f"दिनांक {disconnection} को ही विद्युत संबंध विच्छेदित कर दिये जाने के बाद भी इनके द्वारा अवैध रूप से घरेलु परिसर में विद्युत ऊर्जा का उपयोग किया जा रहा था। " f"जाँच के दौरान परिसर का कुल विद्युत भार {load} KW ({shreni} श्रेणी) में पाया गया। " f"विद्युत ऊर्जा चोरी में प्रयुक्त {japt} कर लिया गया है, जिसे जाँच-सह-जब्ती प्रतिवेदन के साथ थाने में समर्पित की जा रही है। " f"इनके द्वारा इस प्रकार से अवैध रूप से विद्युत ऊर्जा की चोरी करने से साउथ बिहार पॉवर डिस्ट्रीब्यूशन कम्पनी लिमिटेड को कुल राशि-{fmt_amt(nirdharan)}/- रुपया ({nirdharan_words} रुपया) मात्र की राजस्व हानि अनुमानित है, " f"एवं पूर्व में इनके विद्युत विपत्र का बकाया राशि {fmt_amt2(bakaya)} रुपया को मिलाकर कुल {fmt_amt(nirdharan)}+{fmt_amt2(bakaya)}={kul_s} रुपया ({kul_words} रुपया) है। " f"जिसकी वसूली इनसे ही की जानी है। उक्त राशि में भारतीय विद्युत अधिनियम 2003 की धारा 152 की तहत कम्पाउंडिंग की राशि सम्मिलित नहीं है।")
     add_mixed(doc, [(body, False)], before=0, after=2, line=1.0)
-    add_mixed(doc, [("अतः श्रीमान से आग्रह है कि संबंधित उपरोक्त अभियुक्त पर भारतीय विद्युत अधिनियम 2003 की धारा 135 एवं अन्य सुसंगत धाराओं के अंतर्गत प्राथमिकी दर्ज किया जाए ताकि इस प्रकार की घटना की पुनरावृत्ति न हो सके।", False)], before=0, after=2, line=1.0)
+    add_mixed(doc, [(antim_text, False)], before=0, after=2, line=1.0)
     para(doc, "अनुलग्नक:-", size=11, before=0, after=0)
     para(doc, "(1) गवाहों की सूची।", size=11, before=0, after=0)
     para(doc, "(2) जप्त सामान सह जप्ती सूची।", size=11, before=0, after=2)
-    # BOTTOM TABLE - Left Sthayi | Right Signature - SAME LEVEL
-    # FIX: Right Box ka saara text CENTER - Vishwasbhajan Right Box ke MIDDLE me aayega
     table = doc.add_table(rows=1, cols=2)
     table.alignment = WD_TABLE_ALIGNMENT.CENTER
     table.autofit = False
@@ -186,12 +230,11 @@ def make_docx(fid):
     sthayi_text = sthayi if sthayi else gawah
     if not sthayi_text: sthayi_text = "सोविन्द, पिता-श्री जगदीश प्रसाद, ग्राम-सिड़की, थाना-नागल, जिला-सहारनपुर (U.P), पिन-कोड-247551, मो० नं- 7632996820"
     cell_para(left, sthayi_text, size=11, before=0, after=0, line=1.0)
-    # RIGHT BOX - SAB CENTER - Aligned
     C = WD_ALIGN_PARAGRAPH.CENTER
     cell_para(right, "विश्वासभाजन", size=11, align=C, before=0, after=0, line=1.0)
     cell_para(right, "", size=11, align=C, before=4, after=0, line=1.0)
-    cell_para(right, "कनीय विद्युत अभियंता", size=11, align=C, before=0, after=0, line=1.0)
-    cell_para(right, "विद्युत आपूर्ति प्रशाखा, बाँकेबाजार", size=11, align=C, before=0, after=0, line=1.0)
+    cell_para(right, karyalaya, size=11, align=C, before=0, after=0, line=1.0)
+    cell_para(right, shakha, size=11, align=C, before=0, after=0, line=1.0)
     cell_para(right, "सह अभियोजन पदाधिकारी", size=11, align=C, before=0, after=0, line=1.0)
     out = BASE / f"fir_{fid}.docx"
     doc.save(str(out))
